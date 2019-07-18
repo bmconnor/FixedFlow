@@ -275,7 +275,7 @@ void flash_led();
 	#if enable_analog_conversions == 1
 		#include "loom_analog_conversions.h"
 	#endif
-	#include "loom_analogIn.h"
+	#include "loom_analogln.h"
 #endif
 #if is_neopixel == 1
 	#include "loom_neopixel.h"
