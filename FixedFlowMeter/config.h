@@ -39,7 +39,7 @@
 // ===                      SERIAL OPTIONS                      === 
 // ================================================================
 // --- Debugging --- 
-#define LOOM_DEBUG    0			// Set to 1 if you want Serial statements from various functions to print
+#define LOOM_DEBUG    1			// Set to 1 if you want Serial statements from various functions to print
 								// NOTE: Serial monitor must be opened for device to setup if this is enabled
 								//   Device will freeze if this in enabled and device does not get plugged into Serial
 								// LOOM_DEBUG_Print* are Serial prints that are removed if debugging is off
@@ -377,8 +377,8 @@
 		#define is_decagon    0       // Soil moisture // Previous: 1 
     #define is_node        1      // Previous: Not Defined
 		#define heatpulse     2500    // For HRM probe heat pulse (e.g 2500:2.5 sec) 
-		#define senddelay     60000   // send data every 1 min
-		#define heatduration  30000   // Turn on heater for 30 sec
+		#define senddelay     5 * 60000   // send data every 5 minutes
+		#define heatduration  30000   // Turn on heater for 30 seconds (in 2.5 sec pulses), note that relay is toggled OFF 10 seconds after the senddelay
 	#endif
 #endif 
 

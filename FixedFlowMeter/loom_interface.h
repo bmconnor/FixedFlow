@@ -238,8 +238,10 @@ void measure_sensors()
 
 	 // Get analog readings
 	#if is_sapflow == 1 && hub_node_type == 1
+
+    measure_sht31d();
 		measure_sapflow();
-		measure_sht31d();
+    senddata();
 		heat();
 	#endif
 }

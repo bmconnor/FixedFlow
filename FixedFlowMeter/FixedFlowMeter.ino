@@ -28,44 +28,26 @@ void setup()
   digitalWrite(8, HIGH); 
 }
 
+
 // ================================================================ 
 // ===                        MAIN LOOP                         ===
 // ================================================================ 
 void loop() 
 {
-	OSCBundle bndl;
 
    // NOTE In order to get the RTC working properly, we needed to comment out the following
    //      line in loom_rtc.h - this removes another RTC's specific functions
    //      // #include <RTClibExtended.h>
    //   
    //      See https://github.com/OPEnSLab-OSU/InternetOfAg#real-time-clock-support 
-   
-   // Create the log filename in as SP190317.csv
-   char filename[15] = "SPYYMMDD.csv";
-  
-   DateTime time_check = rtc_inst.now();
-   int y = time_check.year() - (time_check.year() / 1000) * 1000;
-   int m = time_check.month();
-   int d = time_check.day();
- 
-   sprintf(filename, "SP%02d%02d%02d.csv", y, m, d);
-  
-	 measure_sensors();				// Read sensors, store data in sensor state struct
-	 package_data(&bndl);			// Copy sensor data from state to provided bundle
 
-   // Log the sensor data to the screen (does *not* include the data and time that is logged in the file)
-	 print_bundle(&bndl);
 
-   // Log the sensor data to the SD card
-   log_bundle(&bndl, SDCARD, filename);
+     measure_sensors();       // Read sensors, store data in sensor state struct
 
-	 delay(1000);
+// delay(2000);
 
-   // NOTE Uncomment this line to see the file contents 
-   // sd_dump_file (filename);
-	 additional_loop_checks();		// Miscellaneous checks
 
+     additional_loop_checks();    // Miscellaneous checks
 
    // NOTE ANYTHING BELOW THIS LINE IS JUST EXAMPLES!!!
 	// --- End Example ---

@@ -63,7 +63,7 @@ void run_sapflowmeter(OSCBundle *bndl);
 //
 void setup_sapflow() 
 {
-    Serial.println("\n************** setup_sapflow *****************\n");
+      LOOM_DEBUG_Println("************** setup_sapflow *****************");
 
   #if is_node == 1
     setup_sht31d();
@@ -76,6 +76,9 @@ void setup_sapflow()
     testcounter = 0;
   #endif
 
+      LOOM_DEBUG_Println2("heatpulse (ms)   : ", heatpulse);
+      LOOM_DEBUG_Println2("senddelay (ms)   : ", senddelay);
+      LOOM_DEBUG_Println2("heatduration (ms): ", heatduration);
 }
 
 
@@ -106,18 +109,27 @@ void senddata()
   OSCBundle bndl;
  
   currentMillis = millis();
+
   if (currentMillis - startMillis >= senddelay) {
-    measure_sensors();
+    // measure_sensors();
     package_data(&bndl);
     #if LOOM_DEBUG == 1
       print_bundle(&bndl);
     #endif
-    send_bundle(&bndl, LORA); //
-    lora_send_bundle(&bndl); 
 
-    sd_save_bundle(FileName, &bndl, 0, 3);
-    //  read_all_from_file("newlog");
-    startMillis = currentMillis;
+     char filename[15] = "SPYYMMDD.csv";
+    
+     DateTime time_check = rtc_inst.now();
+     int y = time_check.year() - (time_check.year() / 1000) * 1000;
+     int m = time_check.month();
+     int d = time_check.day();
+   
+     sprintf(filename, "SP%02d%02d%02d.csv", y, m, d);
+     LOOM_DEBUG_Println2("Saving bundle to sdcard: ", filename);
+
+     sd_save_bundle(filename, &bndl, 0, 3);
+
+     startMillis = currentMillis;
   }
 }
 
@@ -156,10 +168,11 @@ void testsenddata()
 void heat()
 {
   currentTime = millis();
-  
+
+
   #if probe_type  == 0      // 0:TDM, 1: HRM
       if ( (currentTime - lastUpdate >= senddelay - heatduration) && (currentTime - lastUpdate < senddelay) ){//turn on 10min before sending data
-        digitalWrite(HEATPIN, HIGH); //turn on heater
+         digitalWrite(HEATPIN, HIGH); //turn on heater
       }
       else if(currentTime - lastUpdate >= senddelay)
       {
@@ -174,12 +187,14 @@ void heat()
         } 
       }   
   #endif //of probe_type == 0
-  
+
+
   #if probe_type == 1      // 0:TDM, 1: HRM
     currentPulseTime = millis();
-    
+
     if ( (currentTime - lastUpdate >= senddelay - heatduration) && (currentTime - lastUpdate < senddelay) ){//turn on pulse 1 min before sending data
       if (currentPulseTime - lastPulseUpdate > heatpulse) {//turn on/off every 2.5 sec
+LOOM_DEBUG_Println2("Toggle relay: ", sapflow_relay_on);
         digitalWrite(HEATPIN, sapflow_relay_on ? HIGH : LOW);
         sapflow_relay_on = !sapflow_relay_on;
         lastPulseUpdate = currentPulseTime;  
@@ -187,6 +202,7 @@ void heat()
     }
     else if(currentTime - lastUpdate >= senddelay){ 
       if (currentPulseTime - lastPulseUpdate > heatpulse) {//turn on/off every 2.5 sec
+LOOM_DEBUG_Println2("Toggle relay: ", sapflow_relay_on);
         digitalWrite(HEATPIN, sapflow_relay_on ? HIGH : LOW);
         sapflow_relay_on = !sapflow_relay_on;
         lastPulseUpdate = currentPulseTime;  
@@ -196,11 +212,13 @@ void heat()
     }
     if(pulseflag){
       if (currentPulseTime - lastPulseUpdate > heatpulse) {//turn on/off every 2.5 sec
-        digitalWrite(HEATPIN, sapflow_relay_on ? HIGH : LOW);
+       digitalWrite(HEATPIN, sapflow_relay_on ? HIGH : LOW);
+LOOM_DEBUG_Println2("Toggle relay: ", sapflow_relay_on);
         sapflow_relay_on = !sapflow_relay_on;
         lastPulseUpdate = currentPulseTime;  
       }
       if(currentTime - lastUpdate >= 10000){ //Turn off pulse 10 sec after sending data
+LOOM_DEBUG_Println2("Toggle relay: ", "off");
         digitalWrite(HEATPIN, LOW); //turn off heater
         pulseflag = false;
       } 
